@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Hub - Multi-Game Platform</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #4a9eff;
+            --neon-pink: #ff0080;
+            --neon-purple: #b400ff;
+            --neon-green: #00ff88;
+            --dark-bg: #0a0e1a;
+            --darker-bg: #060810;
+            --card-bg: rgba(20, 28, 45, 0.6);
+            --text-primary: #ffffff;
+            --text-secondary: #8b93b0;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at top, rgba(74, 158, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(180, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(0, 243, 255, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(74, 158, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 158, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        /* Auth Pages */
+        .auth-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.2);
+            animation: fadeSlideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--darker-bg);
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: rgba(139, 147, 176, 0.5);
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .auth-divider {
+            text-align: center;
+            margin: 25px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.3), rgba(180, 0, 255, 0.3));
+            color: white;
+            border: 1px solid rgba(74, 158, 255, 0.5);
+            box-shadow: 0 4px 20px rgba(74, 158, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.5), rgba(180, 0, 255, 0.5));
+            border-color: var(--neon-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(74, 158, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--neon-blue);
+            border: 1px solid rgba(74, 158, 255, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(74, 158, 255, 0.1);
+            border-color: var(--neon-blue);
+            box-shadow: 0 4px 20px rgba(74, 158, 255, 0.2);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+        }
+
+        .auth-link {
+            color: var(--neon-blue);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+
+        .session-notice {
+            text-align: center;
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(74, 158, 255, 0.1);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 8px;
+            color: var(--neon-blue);
+            font-size: 0.85rem;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, rgba(10, 14, 26, 0.95), rgba(20, 28, 45, 0.9));
+            border-bottom: 1px solid rgba(74, 158, 255, 0.3);
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.6), transparent);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .controller-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.2), rgba(180, 0, 255, 0.2));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(74, 158, 255, 0.2);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            background: var(--darker-bg);
+            border: 1px solid var(--neon-blue);
+            border-radius: 8px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .admin-badge {
+            background: var(--neon-pink);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 0 40px;
+            margin-top: 20px;
+            border-bottom: 2px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-tab:hover {
+            color: var(--neon-blue);
+        }
+
+        .nav-tab.active {
+            color: var(--neon-blue);
+            border-bottom-color: var(--neon-blue);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding: 60px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+        }
+
+        .dashboard-main {
+            min-width: 0;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(20, 28, 45, 0.4), rgba(10, 14, 26, 0.6));
+            border: 1px solid rgba(74, 158, 255, 0.2);
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(74, 158, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .hero-trophy {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10rem;
+            opacity: 0.15;
+            filter: drop-shadow(0 0 40px rgba(74, 158, 255, 0.4));
+        }
+
+        /* Top Players Sidebar */
+        .top-players-card {
+            background: linear-gradient(135deg, rgba(20, 28, 45, 0.5), rgba(10, 14, 26, 0.7));
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .top-players-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .trophy-icon-large {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 20px rgba(255, 215, 0, 0.4));
+        }
+
+        .top-players-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .top-players-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .top-player-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(10, 14, 26, 0.5);
+            border: 1px solid rgba(74, 158, 255, 0.2);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .top-player-item:hover {
+            border-color: var(--neon-blue);
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(74, 158, 255, 0.2);
+        }
+
+        .player-rank {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            width: 40px;
+            text-align: center;
+        }
+
+        .rank-1 { color: var(--gold); }
+        .rank-2 { color: var(--silver); }
+        .rank-3 { color: var(--bronze); }
+
+        .medal-icon {
+            font-size: 1.8rem;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .player-game {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .player-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+        }
+
+        .view-all-link {
+            display: block;
+            text-align: center;
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .view-all-link:hover {
+            background: rgba(74, 158, 255, 0.1);
+            border-color: var(--neon-blue);
+        }
+
+        /* Trending Section */
+        .trending-section {
+            background: linear-gradient(90deg, rgba(74, 158, 255, 0.1), rgba(180, 0, 255, 0.1));
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .trending-icon {
+            font-size: 1.8rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .trending-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--neon-blue);
+        }
+
+        .trending-game {
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .dashboard-header {
+            margin-bottom: 40px;
+        }
+
+        .dashboard-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, rgba(20, 28, 45, 0.4), rgba(10, 14, 26, 0.6));
+            border: 1px solid rgba(74, 158, 255, 0.25);
+            border-radius: 16px;
+            padding: 35px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .game-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(74, 158, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            transition: width 0.5s ease, height 0.5s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(74, 158, 255, 0.6);
+            box-shadow: 0 20px 60px rgba(74, 158, 255, 0.25);
+        }
+
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .game-card:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .game-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.15), rgba(180, 0, 255, 0.15));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover .game-icon {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.25), rgba(180, 0, 255, 0.25));
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(74, 158, 255, 0.3);
+        }
+
+        .game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+            color: var(--text-primary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-description {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+            font-size: 0.95rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px 0;
+            border-top: 1px solid rgba(74, 158, 255, 0.2);
+            border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-stat {
+            text-align: center;
+        }
+
+        .game-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .game-stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+        }
+
+        .game-play-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.2), rgba(180, 0, 255, 0.2));
+            border: 1px solid rgba(74, 158, 255, 0.4);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-play-button:hover {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.4), rgba(180, 0, 255, 0.4));
+            border-color: var(--neon-blue);
+            box-shadow: 0 4px 20px rgba(74, 158, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Game View */
+        .game-view {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+        }
+
+        .game-container {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 243, 255, 0.2);
+        }
+
+        .game-canvas {
+            width: 100%;
+            background: var(--darker-bg);
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            background: var(--card-bg);
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+        }
+
+        .leaderboard-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--neon-green);
+        }
+
+        .leaderboard-list {
+            list-style: none;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: var(--darker-bg);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            border-color: var(--neon-blue);
+            transform: translateX(5px);
+        }
+
+        .leaderboard-rank {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            width: 50px;
+            color: var(--neon-blue);
+        }
+
+        .leaderboard-rank.top1 {
+            color: #ffd700;
+        }
+
+        .leaderboard-rank.top2 {
+            color: #c0c0c0;
+        }
+
+        .leaderboard-rank.top3 {
+            color: #cd7f32;
+        }
+
+        .leaderboard-user {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .leaderboard-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--neon-green);
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-section {
+            background: var(--card-bg);
+            border: 2px solid rgba(255, 0, 128, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .admin-section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--neon-pink);
+        }
+
+        .game-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .game-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: var(--darker-bg);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 8px;
+        }
+
+        .game-list-info {
+            flex: 1;
+        }
+
+        .game-list-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .game-list-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .btn-danger {
+            background: var(--neon-pink);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: #ff3399;
+            transform: scale(1.05);
+        }
+
+        .add-game-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Snake Game Specific */
+        .snake-grid {
+            display: grid;
+            gap: 1px;
+            background: var(--darker-bg);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .snake-cell {
+            aspect-ratio: 1;
+            border-radius: 2px;
+        }
+
+        .snake-cell.snake {
+            background: var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .snake-cell.food {
+            background: var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+        }
+
+        .game-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--neon-green);
+        }
+
+        /* Memory Game Specific */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: var(--darker-bg);
+            border: 2px solid var(--neon-blue);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            transition: all 0.3s ease;
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        .memory-card.flipped {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        }
+
+        .memory-card.matched {
+            background: var(--neon-green);
+            border-color: var(--neon-green);
+            cursor: default;
+        }
+
+        /* 2048 Game Specific */
+        .game-2048-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto 20px;
+            padding: 15px;
+            background: var(--darker-bg);
+            border-radius: 12px;
+        }
+
+        .game-2048-cell {
+            aspect-ratio: 1;
+            background: rgba(0, 243, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            transition: all 0.2s ease;
+        }
+
+        .game-2048-cell[data-value="2"] { background: rgba(0, 243, 255, 0.3); }
+        .game-2048-cell[data-value="4"] { background: rgba(0, 243, 255, 0.4); }
+        .game-2048-cell[data-value="8"] { background: rgba(180, 0, 255, 0.4); }
+        .game-2048-cell[data-value="16"] { background: rgba(180, 0, 255, 0.5); }
+        .game-2048-cell[data-value="32"] { background: rgba(255, 0, 128, 0.4); }
+        .game-2048-cell[data-value="64"] { background: rgba(255, 0, 128, 0.5); }
+        .game-2048-cell[data-value="128"] { background: rgba(0, 255, 136, 0.4); font-size: 1.7rem; }
+        .game-2048-cell[data-value="256"] { background: rgba(0, 255, 136, 0.5); font-size: 1.7rem; }
+        .game-2048-cell[data-value="512"] { background: rgba(255, 215, 0, 0.5); font-size: 1.7rem; }
+        .game-2048-cell[data-value="1024"] { background: rgba(255, 215, 0, 0.6); font-size: 1.5rem; }
+        .game-2048-cell[data-value="2048"] { background: rgba(255, 215, 0, 0.8); font-size: 1.5rem; }
+
+        @media (max-width: 1200px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-players-card {
+                position: relative;
+                top: 0;
+            }
+
+            .hero-trophy {
+                font-size: 6rem;
+                right: 30px;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-tabs {
+                padding: 0 20px;
+                overflow-x: auto;
+            }
+
+            .dashboard {
+                padding: 20px;
+            }
+
+            .hero-section {
+                padding: 30px;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-trophy {
+                display: none;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .memory-grid {
+                gap: 10px;
+            }
+
+            .game-2048-grid {
+                max-width: 100%;
+            }
+
+            .dashboard-layout {
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-grid"></div>
+    <div class="stars" id="stars"></div>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Generate stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        const { useState, useEffect } = React;
+
+        // Initial games data
+        const initialGames = [
+            {
+                id: 1,
+                name: 'Snake',
+                icon: '🐍',
+                description: 'Classic snake game with a neon twist',
+                plays: 0,
+                highScore: 0
+            },
+            {
+                id: 2,
+                name: 'Memory Match',
+                icon: '🧠',
+                description: 'Test your memory with matching cards',
+                plays: 0,
+                highScore: 0
+            },
+            {
+                id: 3,
+                name: '2048',
+                icon: '🎯',
+                description: 'Combine tiles to reach 2048',
+                plays: 0,
+                highScore: 0
+            }
+        ];
+
+        // Snake Game Component
+        function SnakeGame({ onGameEnd }) {
+            const [snake, setSnake] = useState([[5, 5]]);
+            const [food, setFood] = useState([10, 10]);
+            const [direction, setDirection] = useState('RIGHT');
+            const [gameOver, setGameOver] = useState(false);
+            const [score, setScore] = useState(0);
+            const gridSize = 20;
+
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    e.preventDefault();
+                    switch(e.key) {
+                        case 'ArrowUp':
+                            if (direction !== 'DOWN') setDirection('UP');
+                            break;
+                        case 'ArrowDown':
+                            if (direction !== 'UP') setDirection('DOWN');
+                            break;
+                        case 'ArrowLeft':
+                            if (direction !== 'RIGHT') setDirection('LEFT');
+                            break;
+                        case 'ArrowRight':
+                            if (direction !== 'LEFT') setDirection('RIGHT');
+                            break;
+                    }
+                };
+                window.addEventListener('keydown', handleKeyPress);
+                return () => window.removeEventListener('keydown', handleKeyPress);
+            }, [direction]);
+
+            useEffect(() => {
+                if (gameOver) return;
+
+                const moveSnake = () => {
+                    setSnake(prevSnake => {
+                        const newSnake = [...prevSnake];
+                        const head = [...newSnake[0]];
+
+                        switch(direction) {
+                            case 'UP': head[0]--; break;
+                            case 'DOWN': head[0]++; break;
+                            case 'LEFT': head[1]--; break;
+                            case 'RIGHT': head[1]++; break;
+                        }
+
+                        // Check collision with walls
+                        if (head[0] < 0 || head[0] >= gridSize || head[1] < 0 || head[1] >= gridSize) {
+                            setGameOver(true);
+                            onGameEnd(score);
+                            return prevSnake;
+                        }
+
+                        // Check collision with self
+                        if (newSnake.some(segment => segment[0] === head[0] && segment[1] === head[1])) {
+                            setGameOver(true);
+                            onGameEnd(score);
+                            return prevSnake;
+                        }
+
+                        newSnake.unshift(head);
+
+                        // Check if food is eaten
+                        if (head[0] === food[0] && head[1] === food[1]) {
+                            setScore(s => s + 10);
+                            setFood([
+                                Math.floor(Math.random() * gridSize),
+                                Math.floor(Math.random() * gridSize)
+                            ]);
+                        } else {
+                            newSnake.pop();
+                        }
+
+                        return newSnake;
+                    });
+                };
+
+                const interval = setInterval(moveSnake, 150);
+                return () => clearInterval(interval);
+            }, [direction, gameOver, food, score, onGameEnd]);
+
+            const resetGame = () => {
+                setSnake([[5, 5]]);
+                setFood([10, 10]);
+                setDirection('RIGHT');
+                setScore(0);
+                setGameOver(false);
+            };
+
+            const renderGrid = () => {
+                const grid = [];
+                for (let row = 0; row < gridSize; row++) {
+                    for (let col = 0; col < gridSize; col++) {
+                        const isSnake = snake.some(segment => segment[0] === row && segment[1] === col);
+                        const isFood = food[0] === row && food[1] === col;
+                        grid.push(
+                            <div
+                                key={`${row}-${col}`}
+                                className={`snake-cell ${isSnake ? 'snake' : ''} ${isFood ? 'food' : ''}`}
+                            />
+                        );
+                    }
+                }
+                return grid;
+            };
+
+            return (
+                <div>
+                    <div className="game-score">Score: {score}</div>
+                    <div className="snake-grid" style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}>
+                        {renderGrid()}
+                    </div>
+                    {gameOver && (
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ color: 'var(--neon-pink)', marginBottom: '15px' }}>Game Over!</h3>
+                        </div>
+                    )}
+                    <div className="game-controls">
+                        <button className="btn btn-primary" onClick={resetGame}>
+                            {gameOver ? 'Play Again' : 'Reset'}
+                        </button>
+                    </div>
+                    <div style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-secondary)' }}>
+                        Use arrow keys to control the snake
+                    </div>
+                </div>
+            );
+        }
+
+        // Memory Match Game Component
+        function MemoryGame({ onGameEnd }) {
+            const emojis = ['🎮', '🎯', '🎲', '🎪', '🎨', '🎭', '🎬', '🎸'];
+            const [cards, setCards] = useState([]);
+            const [flipped, setFlipped] = useState([]);
+            const [matched, setMatched] = useState([]);
+            const [moves, setMoves] = useState(0);
+            const [gameWon, setGameWon] = useState(false);
+
+            useEffect(() => {
+                initGame();
+            }, []);
+
+            useEffect(() => {
+                if (matched.length === 16 && !gameWon) {
+                    setGameWon(true);
+                    const score = Math.max(0, 1000 - (moves * 10));
+                    onGameEnd(score);
+                }
+            }, [matched, moves, gameWon, onGameEnd]);
+
+            const initGame = () => {
+                const shuffled = [...emojis, ...emojis]
+                    .sort(() => Math.random() - 0.5)
+                    .map((emoji, index) => ({ id: index, emoji }));
+                setCards(shuffled);
+                setFlipped([]);
+                setMatched([]);
+                setMoves(0);
+                setGameWon(false);
+            };
+
+            const handleCardClick = (index) => {
+                if (flipped.length === 2 || flipped.includes(index) || matched.includes(index)) return;
+
+                const newFlipped = [...flipped, index];
+                setFlipped(newFlipped);
+
+                if (newFlipped.length === 2) {
+                    setMoves(m => m + 1);
+                    if (cards[newFlipped[0]].emoji === cards[newFlipped[1]].emoji) {
+                        setMatched([...matched, ...newFlipped]);
+                        setFlipped([]);
+                    } else {
+                        setTimeout(() => setFlipped([]), 1000);
+                    }
+                }
+            };
+
+            return (
+                <div>
+                    <div className="game-score">Moves: {moves}</div>
+                    <div className="memory-grid">
+                        {cards.map((card, index) => (
+                            <div
+                                key={card.id}
+                                className={`memory-card ${flipped.includes(index) || matched.includes(index) ? 'flipped' : ''} ${matched.includes(index) ? 'matched' : ''}`}
+                                onClick={() => handleCardClick(index)}
+                            >
+                                {(flipped.includes(index) || matched.includes(index)) && card.emoji}
+                            </div>
+                        ))}
+                    </div>
+                    {gameWon && (
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ color: 'var(--neon-green)', marginBottom: '15px' }}>
+                                You Won! Score: {Math.max(0, 1000 - (moves * 10))}
+                            </h3>
+                        </div>
+                    )}
+                    <div className="game-controls">
+                        <button className="btn btn-primary" onClick={initGame}>New Game</button>
+                    </div>
+                </div>
+            );
+        }
+
+        // 2048 Game Component
+        function Game2048({ onGameEnd }) {
+            const [grid, setGrid] = useState([]);
+            const [score, setScore] = useState(0);
+            const [gameOver, setGameOver] = useState(false);
+
+            useEffect(() => {
+                initGame();
+            }, []);
+
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    if (gameOver) return;
+                    e.preventDefault();
+                    
+                    switch(e.key) {
+                        case 'ArrowUp': move('up'); break;
+                        case 'ArrowDown': move('down'); break;
+                        case 'ArrowLeft': move('left'); break;
+                        case 'ArrowRight': move('right'); break;
+                    }
+                };
+                window.addEventListener('keydown', handleKeyPress);
+                return () => window.removeEventListener('keydown', handleKeyPress);
+            }, [grid, gameOver]);
+
+            const initGame = () => {
+                const newGrid = Array(4).fill().map(() => Array(4).fill(0));
+                addNewTile(newGrid);
+                addNewTile(newGrid);
+                setGrid(newGrid);
+                setScore(0);
+                setGameOver(false);
+            };
+
+            const addNewTile = (currentGrid) => {
+                const emptyCells = [];
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        if (currentGrid[i][j] === 0) {
+                            emptyCells.push([i, j]);
+                        }
+                    }
+                }
+                if (emptyCells.length > 0) {
+                    const [row, col] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    currentGrid[row][col] = Math.random() < 0.9 ? 2 : 4;
+                }
+            };
+
+            const move = (direction) => {
+                let newGrid = grid.map(row => [...row]);
+                let moved = false;
+                let newScore = score;
+
+                const moveLeft = (row) => {
+                    const filtered = row.filter(val => val !== 0);
+                    const merged = [];
+                    let skip = false;
+                    
+                    for (let i = 0; i < filtered.length; i++) {
+                        if (skip) {
+                            skip = false;
+                            continue;
+                        }
+                        if (i < filtered.length - 1 && filtered[i] === filtered[i + 1]) {
+                            merged.push(filtered[i] * 2);
+                            newScore += filtered[i] * 2;
+                            skip = true;
+                        } else {
+                            merged.push(filtered[i]);
+                        }
+                    }
+                    
+                    while (merged.length < 4) merged.push(0);
+                    return merged;
+                };
+
+                if (direction === 'left') {
+                    for (let i = 0; i < 4; i++) {
+                        const newRow = moveLeft(newGrid[i]);
+                        if (JSON.stringify(newRow) !== JSON.stringify(newGrid[i])) moved = true;
+                        newGrid[i] = newRow;
+                    }
+                } else if (direction === 'right') {
+                    for (let i = 0; i < 4; i++) {
+                        const reversed = [...newGrid[i]].reverse();
+                        const newRow = moveLeft(reversed).reverse();
+                        if (JSON.stringify(newRow) !== JSON.stringify(newGrid[i])) moved = true;
+                        newGrid[i] = newRow;
+                    }
+                } else if (direction === 'up') {
+                    for (let j = 0; j < 4; j++) {
+                        const column = [newGrid[0][j], newGrid[1][j], newGrid[2][j], newGrid[3][j]];
+                        const newColumn = moveLeft(column);
+                        if (JSON.stringify(newColumn) !== JSON.stringify(column)) moved = true;
+                        for (let i = 0; i < 4; i++) {
+                            newGrid[i][j] = newColumn[i];
+                        }
+                    }
+                } else if (direction === 'down') {
+                    for (let j = 0; j < 4; j++) {
+                        const column = [newGrid[0][j], newGrid[1][j], newGrid[2][j], newGrid[3][j]];
+                        const reversed = [...column].reverse();
+                        const newColumn = moveLeft(reversed).reverse();
+                        if (JSON.stringify(newColumn) !== JSON.stringify(column)) moved = true;
+                        for (let i = 0; i < 4; i++) {
+                            newGrid[i][j] = newColumn[i];
+                        }
+                    }
+                }
+
+                if (moved) {
+                    addNewTile(newGrid);
+                    setGrid(newGrid);
+                    setScore(newScore);
+                    
+                    // Check if game over
+                    if (!canMove(newGrid)) {
+                        setGameOver(true);
+                        onGameEnd(newScore);
+                    }
+                }
+            };
+
+            const canMove = (currentGrid) => {
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        if (currentGrid[i][j] === 0) return true;
+                        if (j < 3 && currentGrid[i][j] === currentGrid[i][j + 1]) return true;
+                        if (i < 3 && currentGrid[i][j] === currentGrid[i + 1][j]) return true;
+                    }
+                }
+                return false;
+            };
+
+            return (
+                <div>
+                    <div className="game-score">Score: {score}</div>
+                    <div className="game-2048-grid">
+                        {grid.map((row, i) => 
+                            row.map((cell, j) => (
+                                <div 
+                                    key={`${i}-${j}`} 
+                                    className="game-2048-cell"
+                                    data-value={cell || ''}
+                                >
+                                    {cell !== 0 && cell}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                    {gameOver && (
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ color: 'var(--neon-pink)', marginBottom: '15px' }}>
+                                Game Over! Final Score: {score}
+                            </h3>
+                        </div>
+                    )}
+                    <div className="game-controls">
+                        <button className="btn btn-primary" onClick={initGame}>
+                            {gameOver ? 'Play Again' : 'New Game'}
+                        </button>
+                    </div>
+                    <div style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-secondary)' }}>
+                        Use arrow keys to play
+                    </div>
+                </div>
+            );
+        }
+
+        // Main App Component
+        function App() {
+            // Initialize state from localStorage or use defaults
+            const [currentUser, setCurrentUser] = useState(() => {
+                const saved = localStorage.getItem('currentUser');
+                return saved ? JSON.parse(saved) : null;
+            });
+            
+            const [isLogin, setIsLogin] = useState(true);
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [currentGame, setCurrentGame] = useState(null);
+            const [leaderboardFilter, setLeaderboardFilter] = useState('all');
+            
+            const [games, setGames] = useState(() => {
+                const saved = localStorage.getItem('games');
+                return saved ? JSON.parse(saved) : initialGames;
+            });
+            
+            const [leaderboard, setLeaderboard] = useState(() => {
+                const saved = localStorage.getItem('leaderboard');
+                return saved ? JSON.parse(saved) : [];
+            });
+            
+            const [users, setUsers] = useState(() => {
+                const saved = localStorage.getItem('users');
+                return saved ? JSON.parse(saved) : [
+                    { username: 'admin', password: 'admin', email: 'admin@arcadehub.com', isAdmin: true, totalScore: 0 }
+                ];
+            });
+
+            // Save to localStorage whenever state changes
+            useEffect(() => {
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }, [currentUser]);
+
+            useEffect(() => {
+                localStorage.setItem('games', JSON.stringify(games));
+            }, [games]);
+
+            useEffect(() => {
+                localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            }, [leaderboard]);
+
+            useEffect(() => {
+                localStorage.setItem('users', JSON.stringify(users));
+            }, [users]);
+
+            const handleAuth = (e) => {
+                e.preventDefault();
+                const usernameOrEmail = e.target.username.value;
+                const password = e.target.password.value;
+                const email = e.target.email?.value;
+
+                if (isLogin) {
+                    // Login: check username/email and password
+                    const user = users.find(u => 
+                        (u.username === usernameOrEmail || u.email === usernameOrEmail) && 
+                        u.password === password
+                    );
+                    if (user) {
+                        setCurrentUser(user);
+                    } else {
+                        alert('Invalid credentials. Please check your username/email and password.');
+                    }
+                } else {
+                    // Registration: check for existing username or email
+                    if (users.find(u => u.username === usernameOrEmail)) {
+                        alert('Username already exists. Please choose a different username.');
+                        return;
+                    }
+                    if (users.find(u => u.email === email)) {
+                        alert('Email already registered. Please use a different email or login.');
+                        return;
+                    }
+                    
+                    // Create new user
+                    const newUser = { 
+                        username: usernameOrEmail, 
+                        password, 
+                        email, 
+                        isAdmin: false, 
+                        totalScore: 0,
+                        registeredAt: new Date().toISOString()
+                    };
+                    setUsers([...users, newUser]);
+                    setCurrentUser(newUser);
+                    alert(`Welcome ${usernameOrEmail}! Your account has been created successfully.`);
+                }
+            };
+
+            const handleLogout = () => {
+                setCurrentUser(null);
+                localStorage.removeItem('currentUser');
+                setCurrentView('dashboard');
+                setCurrentGame(null);
+            };
+
+            const exportProfile = () => {
+                const profileData = {
+                    user: currentUser,
+                    userStats: users.find(u => u.username === currentUser.username),
+                    userScores: leaderboard.filter(s => s.username === currentUser.username),
+                    exportDate: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(profileData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `arcade-hub-profile-${currentUser.username}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+                alert('Profile exported! Save this file to import on another device.');
+            };
+
+            const importProfile = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const profileData = JSON.parse(e.target.result);
+                        
+                        // Check if user already exists
+                        const existingUser = users.find(u => u.username === profileData.user.username);
+                        
+                        if (existingUser) {
+                            if (confirm(`User "${profileData.user.username}" already exists. Merge data?`)) {
+                                // Update existing user
+                                const updatedUsers = users.map(u => 
+                                    u.username === profileData.user.username ? profileData.userStats : u
+                                );
+                                setUsers(updatedUsers);
+                                
+                                // Merge scores
+                                const newScores = profileData.userScores.filter(
+                                    ps => !leaderboard.some(ls => 
+                                        ls.username === ps.username && 
+                                        ls.timestamp === ps.timestamp
+                                    )
+                                );
+                                setLeaderboard([...leaderboard, ...newScores]);
+                            }
+                        } else {
+                            // Add new user
+                            setUsers([...users, profileData.userStats]);
+                            setLeaderboard([...leaderboard, ...profileData.userScores]);
+                        }
+                        
+                        setCurrentUser(profileData.user);
+                        alert('Profile imported successfully! You are now logged in.');
+                    } catch (error) {
+                        alert('Error importing profile. Please check the file.');
+                        console.error(error);
+                    }
+                };
+                reader.readAsText(file);
+            };
+
+            const handleGameEnd = (score) => {
+                const updatedGames = games.map(g => {
+                    if (g.id === currentGame.id) {
+                        return {
+                            ...g,
+                            plays: g.plays + 1,
+                            highScore: Math.max(g.highScore, score)
+                        };
+                    }
+                    return g;
+                });
+                setGames(updatedGames);
+
+                const updatedUsers = users.map(u => {
+                    if (u.username === currentUser.username) {
+                        return { ...u, totalScore: u.totalScore + score };
+                    }
+                    return u;
+                });
+                setUsers(updatedUsers);
+
+                // Check if user already has a score for this game
+                const existingScoreIndex = leaderboard.findIndex(
+                    entry => entry.username === currentUser.username && entry.gameName === currentGame.name
+                );
+
+                let newLeaderboard;
+                if (existingScoreIndex !== -1) {
+                    // User has played this game before
+                    const existingScore = leaderboard[existingScoreIndex];
+                    if (score > existingScore.score) {
+                        // New high score - update the existing entry
+                        newLeaderboard = [...leaderboard];
+                        newLeaderboard[existingScoreIndex] = {
+                            ...existingScore,
+                            score: score,
+                            timestamp: new Date().toISOString()
+                        };
+                    } else {
+                        // Keep existing higher score
+                        newLeaderboard = leaderboard;
+                    }
+                } else {
+                    // First time playing this game - add new entry
+                    const newEntry = {
+                        username: currentUser.username,
+                        gameName: currentGame.name,
+                        score: score,
+                        timestamp: new Date().toISOString()
+                    };
+                    newLeaderboard = [...leaderboard, newEntry];
+                }
+
+                // Sort leaderboard by score
+                setLeaderboard(newLeaderboard.sort((a, b) => b.score - a.score));
+            };
+
+            const playGame = (game) => {
+                setCurrentGame(game);
+                setCurrentView('game');
+            };
+
+            const addGame = (e) => {
+                e.preventDefault();
+                const newGame = {
+                    id: games.length + 1,
+                    name: e.target.gameName.value,
+                    icon: e.target.gameIcon.value,
+                    description: e.target.gameDescription.value,
+                    plays: 0,
+                    highScore: 0
+                };
+                setGames([...games, newGame]);
+                e.target.reset();
+            };
+
+            const removeGame = (gameId) => {
+                setGames(games.filter(g => g.id !== gameId));
+            };
+
+            if (!currentUser) {
+                return (
+                    <div className="app-container">
+                        <div className="auth-page">
+                            <div className="auth-container">
+                                <h1 className="auth-title">Arcade Hub</h1>
+                                <p className="auth-subtitle">
+                                    {isLogin ? 'Sign in to continue' : 'Create your account'}
+                                </p>
+                                <form onSubmit={handleAuth}>
+                                    {!isLogin && (
+                                        <div className="form-group">
+                                            <label className="form-label">Email</label>
+                                            <input 
+                                                type="email" 
+                                                name="email" 
+                                                className="form-input"
+                                                placeholder="your@email.com"
+                                                required
+                                            />
+                                            <div className="form-hint">We'll never share your email</div>
+                                        </div>
+                                    )}
+                                    <div className="form-group">
+                                        <label className="form-label">{isLogin ? 'Username or Email' : 'Username'}</label>
+                                        <input 
+                                            type="text" 
+                                            name="username" 
+                                            className="form-input"
+                                            placeholder={isLogin ? "Enter username or email" : "Choose a username"}
+                                            required
+                                            minLength="3"
+                                        />
+                                        {!isLogin && <div className="form-hint">Minimum 3 characters</div>}
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Password</label>
+                                        <input 
+                                            type="password" 
+                                            name="password" 
+                                            className="form-input"
+                                            placeholder="Enter password"
+                                            required
+                                            minLength="6"
+                                        />
+                                        {!isLogin && <div className="form-hint">Minimum 6 characters</div>}
+                                    </div>
+                                    <button type="submit" className="btn btn-primary" style={{width: '100%'}}>
+                                        {isLogin ? 'Login' : 'Create Account'}
+                                    </button>
+                                </form>
+                                <div className="auth-switch">
+                                    {isLogin ? "Don't have an account? " : "Already have an account? "}
+                                    <span className="auth-link" onClick={() => setIsLogin(!isLogin)}>
+                                        {isLogin ? 'Register' : 'Login'}
+                                    </span>
+                                </div>
+                                
+                                {isLogin && (
+                                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                                        <div style={{ 
+                                            padding: '15px', 
+                                            background: 'rgba(74, 158, 255, 0.05)',
+                                            border: '1px solid rgba(74, 158, 255, 0.2)',
+                                            borderRadius: '8px'
+                                        }}>
+                                            <p style={{ 
+                                                color: 'var(--text-secondary)', 
+                                                marginBottom: '10px',
+                                                fontSize: '0.9rem'
+                                            }}>
+                                                Have a profile from another device?
+                                            </p>
+                                            <label 
+                                                htmlFor="import-profile" 
+                                                className="btn btn-secondary"
+                                                style={{ cursor: 'pointer', display: 'inline-block' }}
+                                            >
+                                                📥 Import Profile
+                                            </label>
+                                            <input 
+                                                id="import-profile"
+                                                type="file" 
+                                                accept=".json"
+                                                onChange={importProfile}
+                                                style={{ display: 'none' }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div className="session-notice">
+                                    🔒 Your session will be saved automatically
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="app-container">
+                    <header className="header">
+                        <div className="logo-container">
+                            <div className="controller-icon">🎮</div>
+                            <div className="logo">Arcade Hub</div>
+                        </div>
+                        <div className="header-right">
+                            <div className="user-info">
+                                <div className="user-avatar">
+                                    {currentUser.username[0].toUpperCase()}
+                                </div>
+                                <div>
+                                    <div className="user-name">{currentUser.username}</div>
+                                    {currentUser.isAdmin && <div className="admin-badge">Admin</div>}
+                                </div>
+                            </div>
+                            <button 
+                                className="btn btn-secondary" 
+                                onClick={exportProfile}
+                                title="Export your profile to use on another device"
+                            >
+                                📤 Export
+                            </button>
+                            <button className="btn btn-secondary" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    </header>
+
+                    <nav className="nav-tabs">
+                        <button 
+                            className={`nav-tab ${currentView === 'dashboard' ? 'active' : ''}`}
+                            onClick={() => { setCurrentView('dashboard'); setCurrentGame(null); }}
+                        >
+                            Games
+                        </button>
+                        <button 
+                            className={`nav-tab ${currentView === 'leaderboard' ? 'active' : ''}`}
+                            onClick={() => { setCurrentView('leaderboard'); setCurrentGame(null); }}
+                        >
+                            Leaderboard
+                        </button>
+                        {currentUser.isAdmin && (
+                            <button 
+                                className={`nav-tab ${currentView === 'admin' ? 'active' : ''}`}
+                                onClick={() => { setCurrentView('admin'); setCurrentGame(null); }}
+                            >
+                                Admin
+                            </button>
+                        )}
+                    </nav>
+
+                    {currentView === 'dashboard' && !currentGame && (
+                        <div className="dashboard">
+                            <div className="dashboard-layout">
+                                <div className="dashboard-main">
+                                    {/* Hero Section */}
+                                    <div className="hero-section">
+                                        <div className="hero-content">
+                                            <h1 className="hero-title">Play The Next Generation Of Casual Games</h1>
+                                            <div className="hero-buttons">
+                                                <button className="btn btn-primary" onClick={() => games.length > 0 && playGame(games[0])}>
+                                                    Play Now
+                                                </button>
+                                                <button className="btn btn-secondary" onClick={() => setCurrentView('leaderboard')}>
+                                                    View Leaderboard
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="hero-trophy">🏆</div>
+                                    </div>
+
+                                    {/* Trending Game */}
+                                    <div className="trending-section">
+                                        <div className="trending-icon">🔥</div>
+                                        <div>
+                                            <span className="trending-title">Trending Game</span>
+                                            <span className="trending-game"> — Memory Match – Played by {games.find(g => g.name === 'Memory Match')?.plays || 0} users today</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Game Library */}
+                                    <div className="dashboard-header">
+                                        <h2 className="dashboard-title">Game Library</h2>
+                                        <p className="dashboard-subtitle">Choose your adventure</p>
+                                    </div>
+                                    <div className="games-grid">
+                                        {games.map(game => (
+                                            <div key={game.id} className="game-card" onClick={() => playGame(game)}>
+                                                <div className="game-icon">{game.icon}</div>
+                                                <h3 className="game-title">{game.name}</h3>
+                                                <p className="game-description">{game.description}</p>
+                                                <div className="game-stats">
+                                                    <div className="game-stat">
+                                                        <div className="game-stat-label">Plays</div>
+                                                        <div className="game-stat-value">{game.plays}</div>
+                                                    </div>
+                                                    <div className="game-stat">
+                                                        <div className="game-stat-label">High Score</div>
+                                                        <div className="game-stat-value">{game.highScore}</div>
+                                                    </div>
+                                                </div>
+                                                <button className="game-play-button" onClick={(e) => { e.stopPropagation(); playGame(game); }}>
+                                                    Play
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Top Players Sidebar */}
+                                <div className="top-players-card">
+                                    <div className="top-players-header">
+                                        <div className="trophy-icon-large">🏆</div>
+                                        <h3 className="top-players-title">Top Players</h3>
+                                    </div>
+                                    <ul className="top-players-list">
+                                        {leaderboard.slice(0, 3).map((entry, index) => (
+                                            <li key={index} className="top-player-item">
+                                                <span className={`player-rank rank-${index + 1}`}>{index + 1}</span>
+                                                <span className="medal-icon">
+                                                    {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                                                </span>
+                                                <div className="player-info">
+                                                    <div className="player-name">{entry.username}</div>
+                                                    <div className="player-game">{entry.gameName}</div>
+                                                </div>
+                                                <span className="player-score">{entry.score}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    {leaderboard.length === 0 && (
+                                        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '20px' }}>
+                                            No scores yet. Start playing!
+                                        </p>
+                                    )}
+                                    <a href="#" className="view-all-link" onClick={(e) => { e.preventDefault(); setCurrentView('leaderboard'); }}>
+                                        View All →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentView === 'game' && currentGame && (
+                        <div className="game-view">
+                            <div className="game-header">
+                                <button className="back-button" onClick={() => setCurrentGame(null)}>
+                                    ← Back to Games
+                                </button>
+                                <h2 className="game-title">{currentGame.icon} {currentGame.name}</h2>
+                            </div>
+                            <div className="game-container">
+                                {currentGame.name === 'Snake' && <SnakeGame onGameEnd={handleGameEnd} />}
+                                {currentGame.name === 'Memory Match' && <MemoryGame onGameEnd={handleGameEnd} />}
+                                {currentGame.name === '2048' && <Game2048 onGameEnd={handleGameEnd} />}
+                            </div>
+                        </div>
+                    )}
+
+                    {currentView === 'leaderboard' && (
+                        <div className="dashboard">
+                            <div className="dashboard-header">
+                                <h1 className="dashboard-title">Leaderboard</h1>
+                                <p className="dashboard-subtitle">Top Players</p>
+                            </div>
+                            <div className="leaderboard">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                    <h3 className="leaderboard-title">Rankings</h3>
+                                    <select 
+                                        className="form-input" 
+                                        style={{ width: 'auto', padding: '10px', minWidth: '200px' }}
+                                        value={leaderboardFilter}
+                                        onChange={(e) => setLeaderboardFilter(e.target.value)}
+                                    >
+                                        <option value="all">All Games</option>
+                                        {games.map(game => (
+                                            <option key={game.id} value={game.name}>{game.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <ul className="leaderboard-list">
+                                    {(leaderboardFilter === 'all' 
+                                        ? leaderboard 
+                                        : leaderboard.filter(entry => entry.gameName === leaderboardFilter)
+                                    ).slice(0, 20).map((entry, index) => (
+                                        <li key={`${entry.username}-${entry.gameName}-${index}`} className="leaderboard-item">
+                                            <span className={`leaderboard-rank ${index === 0 ? 'top1' : index === 1 ? 'top2' : index === 2 ? 'top3' : ''}`}>
+                                                #{index + 1}
+                                            </span>
+                                            <div className="leaderboard-user">
+                                                <div style={{ fontWeight: 700 }}>
+                                                    {entry.username}
+                                                    {entry.username === currentUser.username && (
+                                                        <span style={{ 
+                                                            marginLeft: '8px', 
+                                                            fontSize: '0.85rem',
+                                                            color: 'var(--neon-green)'
+                                                        }}>
+                                                            (You)
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                                    {entry.gameName}
+                                                </div>
+                                            </div>
+                                            <span className="leaderboard-score">{entry.score}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                {leaderboard.length === 0 && (
+                                    <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px' }}>
+                                        No scores yet. Start playing to see your name here!
+                                    </p>
+                                )}
+                                {leaderboard.length > 0 && (leaderboardFilter === 'all' 
+                                    ? leaderboard 
+                                    : leaderboard.filter(entry => entry.gameName === leaderboardFilter)
+                                ).length === 0 && (
+                                    <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px' }}>
+                                        No scores for {leaderboardFilter} yet!
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {currentView === 'admin' && currentUser.isAdmin && (
+                        <div className="admin-panel">
+                            <div className="admin-section">
+                                <h2 className="admin-section-title">Manage Games</h2>
+                                <div className="game-list">
+                                    {games.map(game => (
+                                        <div key={game.id} className="game-list-item">
+                                            <div className="game-list-info">
+                                                <div className="game-list-name">{game.icon} {game.name}</div>
+                                                <div className="game-list-meta">
+                                                    {game.plays} plays • High score: {game.highScore}
+                                                </div>
+                                            </div>
+                                            <button 
+                                                className="btn-danger"
+                                                onClick={() => {
+                                                    if (confirm(`Remove ${game.name}?`)) {
+                                                        removeGame(game.id);
+                                                    }
+                                                }}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="admin-section">
+                                <h2 className="admin-section-title">Add New Game</h2>
+                                <form className="add-game-form" onSubmit={addGame}>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label className="form-label">Game Name</label>
+                                            <input 
+                                                type="text" 
+                                                name="gameName" 
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Icon (Emoji)</label>
+                                            <input 
+                                                type="text" 
+                                                name="gameIcon" 
+                                                className="form-input"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Description</label>
+                                        <input 
+                                            type="text" 
+                                            name="gameDescription" 
+                                            className="form-input"
+                                            required
+                                        />
+                                    </div>
+                                    <button type="submit" className="btn btn-primary">
+                                        Add Game
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div className="admin-section">
+                                <h2 className="admin-section-title">Data Management</h2>
+                                <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                                    Total Users: {users.length} | Total Scores: {leaderboard.length}
+                                </p>
+                                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                    <button 
+                                        className="btn-danger"
+                                        onClick={() => {
+                                            if (confirm('Clear all leaderboard data? This cannot be undone!')) {
+                                                setLeaderboard([]);
+                                                localStorage.removeItem('leaderboard');
+                                                alert('Leaderboard cleared successfully!');
+                                            }
+                                        }}
+                                    >
+                                        Clear Leaderboard
+                                    </button>
+                                    <button 
+                                        className="btn-danger"
+                                        onClick={() => {
+                                            if (confirm('Reset all games statistics? This cannot be undone!')) {
+                                                const resetGames = games.map(g => ({ ...g, plays: 0, highScore: 0 }));
+                                                setGames(resetGames);
+                                                alert('Game statistics reset successfully!');
+                                            }
+                                        }}
+                                    >
+                                        Reset Game Stats
+                                    </button>
+                                    <button 
+                                        className="btn-danger"
+                                        onClick={() => {
+                                            if (confirm('⚠️ WARNING: This will clear ALL data (users, games, scores) and log you out. Continue?')) {
+                                                localStorage.clear();
+                                                window.location.reload();
+                                            }
+                                        }}
+                                    >
+                                        Clear All Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
